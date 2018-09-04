@@ -7,18 +7,17 @@ Yii2 Image Cropper InputWidget
 
 Features
 ------------
-+ Crop
-+ Image Rotate
-+ Image Flip
-+ Image Zoom
-+ Image Reset
-+ Coordinates
-+ Image Sizes Info
-+ Base64 Data
-+ Upload
-+ Delete Img
-+ Set Image.Url Directly 
-+ Set Image.Src With Javascript
++ Image Crop 图片裁剪
++ Image Rotate 图片旋转
++ Image Flip  图片翻转
++ Image Zoom 图片缩放
++ Image Reset 图片重置
++ Coordinates 图片坐标
++ Image Sizes Info 
++ Base64 Data 图片base64编码
++ Upload 图片上传
++ Delete Img 删除图片
+
 
 Installation
 ------------
