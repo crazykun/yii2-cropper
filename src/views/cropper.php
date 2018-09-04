@@ -271,6 +271,7 @@ $this->registerJs(<<<JS
         viewMode: 2,            
         autoCropArea: 1,
         responsive: false,
+        checkCrossOrigin: false,
         crop: function (e) {
 
             options_$uniqueId.data.width = Math.round(e.detail.width);
