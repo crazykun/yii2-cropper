@@ -95,6 +95,28 @@ Let's add  in your controller file
 ````
 
 
+Simple usage in _form file
+-----
+````php
+ echo $form->field($model, '_image')->widget(\coldlook\cropper\Cropper::className(), [
+        'label' => '选择图片', 
+        'imageUrl' => $model->_image,
+        'cropperOptions' => [
+            'width' => 255, 
+            'height' => 150, 
+            'preview' => [
+                'width' => 255, 
+                'height' => 150, 
+            ],
+        ],         
+        'uploadOptions'=>[
+            'url'=>'/admin/upload/base64-img',
+            'response'=>'res.result.url'
+        ]
+]);
+````
+
+
 
 Advanced usage in _form file
 -----
@@ -173,26 +195,6 @@ Advanced usage in _form file
 ````
 
 
-Simple usage in _form file
------
-````php
- echo $form->field($model, '_image')->widget(\coldlook\cropper\Cropper::className(), [
-        'label' => '选择图片', 
-        'imageUrl' => $model->_image,
-        'cropperOptions' => [
-            'width' => 255, 
-            'height' => 150, 
-            'preview' => [
-                'width' => 255, 
-                'height' => 150, 
-            ],
-        ],         
-        'uploadOptions'=>[
-            'url'=>'/admin/upload/base64-img',
-            'response'=>'res.result.url'
-        ]
-]);
-````
 
 
 
