@@ -3,7 +3,7 @@ Yii2 Image Cropper InputWidget
 
 [![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
 
-<a href="https://fengyuanchen.github.io/cropper/" target="_blank">Cropper.js</a> - Bootstrap Cropper (recommended) (already included).
+<a href="https://fengyuanchen.github.io/cropper/" target="_blank">Cropper.js  v4.0.0</a> - Bootstrap Cropper (recommended) (already included).
 
 Features
 ------------
