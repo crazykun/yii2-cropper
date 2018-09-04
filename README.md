@@ -239,5 +239,6 @@ $('button').click(function() {
 ````
 
 Thx
-````
+-----
+
  [bilginnet](https://github.com/bilginnet/yii2-cropper).
