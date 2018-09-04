@@ -39,6 +39,11 @@ or add
 to the require section of your `composer.json` file.
 
 
+Demo images
+-----
+
+![效果图](https://raw.githubusercontent.com/crazykun/yii2-cropper/master/demo.png)
+
 Usage
 -----
 
