@@ -11,7 +11,7 @@ use yii\helpers\StringHelper;
 use yii\web\View;
 
 /**
- * @author jilikun <jilikun@gmail.com>
+ * @author coldlook <jilikun@gmail.com>
  */
 class Cropper extends InputWidget
 {
@@ -39,6 +39,13 @@ class Cropper extends InputWidget
     public $imageUrl = null;
 
     /**
+     *  default img
+     *
+     * @var string
+     */
+    public $noImage = '';
+
+    /**
      * width int must be specified
      * height int must be specified
      *
@@ -63,6 +70,21 @@ class Cropper extends InputWidget
      */
     public $cropperOptions;
 
+
+    /**
+     *     [
+     *          url @url      // 
+     *          method get || post    
+     *          response string    
+     *     ]
+     *
+     */
+    public $uploadOptions=[
+        'url'=>'',
+        'method'=>'post',
+        'response'=>'',
+    ];
+
     /**
      * 'onClick' => 'function(event){
      *      // when click crop or close button
@@ -76,6 +98,8 @@ class Cropper extends InputWidget
      * @var  bool | string
      */
     public $label;
+
+
 
     /**
      * default '{button} {preview}'
@@ -94,17 +118,26 @@ class Cropper extends InputWidget
         $this->setJsOptions();
         $this->setCropperOptions();
         $this->setInputLabel();
+        if($this->uploadOptions['url']){
+            $this->setUploadOptions();
+        }
     }
 
     public function run()
     {
         parent::run();
 
-        $this->view->registerCss('
+        $view = $this->getView();
+        if($this->noImage == ''){
+            $assets = CropperAsset::register($view);
+            $this->noImage = $assets->baseUrl . '/upload.png';                        
+        }
+
+        $view->registerCss('
             label[for='.$this->options['id'].'] {
                 // display:none
             }
-        ');
+        ');   
 
         return $this->render('cropper', [
             'model' => $this->model,
@@ -115,8 +148,10 @@ class Cropper extends InputWidget
             'uniqueId' => $this->uniqueId,
             'imageUrl' => $this->imageUrl,
             'cropperOptions' => $this->cropperOptions,
+            'uploadOptions' => $this->uploadOptions,
             'jsOptions' => $this->jsOptions,
             'template' => $this->template,
+            'noImage' => $this->noImage,
         ]);
     }
 
@@ -143,8 +178,14 @@ class Cropper extends InputWidget
             if(!isset($options['preview']['url'])||empty($options['preview']['url'])){
                 if($this->imageUrl){
                     $options['preview']['url'] = $this->imageUrl;
-                }else{
-                    $options['preview']['url'] = 'http://static-1251225286.cossh.myqcloud.com/baichengPC/upload.png';
+                }else{     
+                    if($this->noImage == ''){
+                        $view = $this->getView();
+                        $assets = CropperAsset::register($view);
+                        $this->noImage = $assets->baseUrl . '/upload.png';                        
+                    }
+
+                    $options['preview']['url'] = $this->noImage;
                     $previewSizes['width'] = '128px';
                     $previewSizes['height'] = '128px';
                 }
@@ -172,6 +213,7 @@ class Cropper extends InputWidget
         if (!isset($options['icons']['move-up'])) $options['icons']['move-up'] = '<i class="fa fa-arrow-up"></i>';
         if (!isset($options['icons']['move-down'])) $options['icons']['move-down'] = '<i class="fa fa-arrow-down"></i>';
         if (!isset($options['icons']['reset'])) $options['icons']['reset'] = '<i class="fa fa-refresh"></i>';
+        if (!isset($options['icons']['delete'])) $options['icons']['delete'] = '<i class="fa fa-trash"></i>';
 
         $this->cropperOptions = $options;
     }
@@ -232,5 +274,18 @@ class Cropper extends InputWidget
             $jsOptions['pos'] = View::POS_END;
         }
         $this->jsOptions = $jsOptions;
+    }
+
+    public function setUploadOptions()
+    {
+        $options = $this->uploadOptions;
+        if (!isset($options['url'])||!$options['url']) {
+            $options['url']='';
+            return ;
+        }
+        if (!isset($options['method'])||!$options['method']) {
+            $options['method']='post';
+        }
+        $this->uploadOptions=$options;
     }
 }

@@ -7,7 +7,7 @@ use yii\web\AssetBundle;
 use yii\web\View;
 
 /**
- * @author jilikun <jilikun@gmail.com>
+ * @author coldlook <jilikun@gmail.com>
  */
 class CropperReadyAsset extends AssetBundle
 {

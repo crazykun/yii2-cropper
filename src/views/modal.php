@@ -17,6 +17,7 @@ $cropWidth = $cropperOptions['width'];
 $cropHeight = $cropperOptions['height'];
 
 $cropReset=$cropperOptions['icons']['reset'] . ' ' .  Yii::t('cropper', 'Reset');
+$cropDelete = $cropperOptions['icons']['delete'] . ' ' .  Yii::t('cropper', 'Delete');
 
 
 echo '<div class="modal fade" tabindex="-1" role="dialog" id="cropper-modal-'. $unique .'">'
@@ -85,7 +86,8 @@ echo '<div class="modal fade" tabindex="-1" role="dialog" id="cropper-modal-'. $
                         .'<button type="button" class="btn btn-primary move-down">'.$cropperOptions['icons']['move-down'].'</button>'
                     .'</div>'                   
                 .'</div>'
-                .'<button type="button" class="btn btn-primary reset" id="reset-button-'. $unique .'">'.$cropReset.'</button>'
+                .'<button type="button" class="btn btn-info reset" id="reset-button-'. $unique .'">'.$cropReset.'</button>'
+                .'<button type="button" class="btn btn-warning delete" id="delete-button-'. $unique .'">'.$cropDelete.'</button>'
                 .'<button type="button"  class="btn btn-success" data-dismiss="modal">'. $closeLabel .'</button>'
                 .'<button type="button" id="crop-button-'. $unique .'" class="btn btn-danger" data-dismiss="modal">'. $cropLabel .'</button>'
             .'</div>'

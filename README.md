@@ -11,9 +11,12 @@ Features
 + Image Rotate
 + Image Flip
 + Image Zoom
++ Image Reset
 + Coordinates
 + Image Sizes Info
 + Base64 Data
++ Upload
++ Delete Img
 + Set Image.Url Directly 
 + Set Image.Src With Javascript
 
@@ -40,55 +43,56 @@ to the require section of your `composer.json` file.
 Usage
 -----
 
-Let's add into config in your main-local config file before return[]
+
+Let's add  in your controller file
 ````php
-       $baseUrl = str_replace('/backend/web', '', (new Request)->getBaseUrl());
-       $baseUrl = str_replace('/frontend/web', '', $baseUrl);
 
-       Yii::setAlias('@uploadUrl', $baseUrl.'/uploads/');
-       Yii::setAlias('@uploadPath', realpath(dirname(__FILE__).'/../../uploads/'));
-       // image file will upload in //root/uploads   folder
-       
-       return [
-           ....
-       ]
-````
-
-Let's add  in your model file
-````php
-    public $_image
-
-    public function rules()
-    {
-        return [
-            ['_image', 'safe'],
-        ];
-    }
-    
-    public function beforeSave($insert)
-    {
-        if (is_string($this->_image) && strstr($this->_image, 'data:image')) {
-
-            // creating image file as png
-            $data = $this->_image;
-            $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data));
-            $fileName = time() . '-' . rand(100000, 999999) . '.png';
-            file_put_contents(Yii::getAlias('@uploadPath') . '/' . $fileName, $data);
-
-
-            // deleting old image 
-            // $this->image is real attribute for filename in table
-            // customize your code for your attribute            
-            if (!$this->isNewRecord && !empty($this->image)) {
-                unlink(Yii::getAlias('@uploadPath/'.$this->image));
-            }
-            
-            // set new filename
-            $this->image = $fileName;
+    public function actionBase64Img(){
+        $image=$this->param('image');
+        $fileName=$this->save_base64_image($image);
+        if(!$fileName){
+            return $this->ajaxMessage(1,'上传失败');
         }
-
-        return parent::beforeSave($insert);
+        $successPath = Yii::$app->params['imageUploadSuccessPath'] . date('Ymd') . '/';
+     
+        if ($successPath === false) {
+            return $this->ajaxMessage(1,'上传失败');
+        }else{
+            return $this->ajaxMessage(0,'上传成功',[
+                'url' => $successPath,
+                'attachment' => $successPath
+            ]);
+        }
     }
+
+    /**
+     * [将Base64图片转换为本地图片并保存]
+     * @param  [Base64] $save_base64_image [要保存的Base64]
+     * @param  [目录] $path [要保存的路径]
+     */
+    public function save_base64_image($base64_image_content,$path=''){
+        if(!$path){
+            $path = Yii::$app->params['imageUploadRelativePath'] . date('Ymd') . '/';
+        }
+        //匹配出图片的格式
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64_image_content, $result)){
+            $type = $result[2];
+            if (!is_dir($path)) {
+                FileHelper::createDirectory($path, 0777);
+            }
+            $fileName= date('YmdHis') . rand(100000, 999999). '.' .$type;
+
+            if (file_put_contents($path.$fileName, base64_decode(str_replace($result[1], '', $base64_image_content)))){
+                return $fileName;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+
 ````
 
 
@@ -96,7 +100,7 @@ Let's add  in your model file
 Advanced usage in _form file
 -----
 ````php
- echo $form->field($model, '_image')->widget(\coldlook\cropper\Cropper::className(), [
+ echo $form->field($model, '_image')->lable("封面图1(非必填,尺寸:宽*高 建议尺寸225px*150px)")->widget(\coldlook\cropper\Cropper::className(), [
     /*
      * elements of this widget
      *
@@ -148,12 +152,19 @@ Advanced usage in _form file
             'move-right' => '<i class="fa fa-arrow-right"></i>',
             'move-up' => '<i class="fa fa-arrow-up"></i>',
             'move-down' => '<i class="fa fa-arrow-down"></i>',
+            'reset' => '<i class="fa fa-refresh"></i>',
+            'delete' => '<i class="fa fa-trash"></i>',
+        ],
+        // you can customize your upload options
+        'uploadOptions'=>[
+            'url'=>'/upload/base64-img',
+            'response'=>'res.result.url'
         ]
     ],
 
     // optional // defaults following code
     // you can customize 
-    'label' => '$model->attribute->label', 
+    'label' => '选择图片', 
     
     // optional // default following code
     // you can customize 
@@ -167,10 +178,20 @@ Simple usage in _form file
 -----
 ````php
  echo $form->field($model, '_image')->widget(\coldlook\cropper\Cropper::className(), [
-    'cropperOptions' => [
-        'width' => 100, // must be specified
-        'height' => 100, // must be specified
-     ]
+        'label' => '选择图片', 
+        'imageUrl' => $model->_image,
+        'cropperOptions' => [
+            'width' => 255, 
+            'height' => 150, 
+            'preview' => [
+                'width' => 255, 
+                'height' => 150, 
+            ],
+        ],         
+        'uploadOptions'=>[
+            'url'=>'/admin/upload/base64-img',
+            'response'=>'res.result.url'
+        ]
 ]);
 ````
 
@@ -198,10 +219,6 @@ jsOptions[]
 
 Notes
 -----
-Don't forget to add this line into root in .htaccess file
-````
-RewriteRule ^uploads/(.*)$ uploads/$1 [L]
-````
 
 You can set crop image directly with javascript 
 

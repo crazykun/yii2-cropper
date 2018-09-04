@@ -10,6 +10,7 @@
 /** @var $cropperOptions mixed */
 /** @var $jsOptions mixed */
 /** @var $template string */
+/** @var $noImage string */
 
 
 use yii\bootstrap\Html;
@@ -42,6 +43,11 @@ $browseLabel = $cropperOptions['icons']['browse'] . ' ' . Yii::t('cropper', 'Bro
 $cropLabel = $cropperOptions['icons']['crop'] . ' ' . Yii::t('cropper', 'Crop');
 $closeLabel = $cropperOptions['icons']['close'] . ' ' . Yii::t('cropper', 'Crop') . ' & ' . Yii::t('cropper', 'Close');
 $cropReset=$cropperOptions['icons']['reset'] . ' ' .  Yii::t('cropper', 'Reset');
+$cropDelete=$cropperOptions['icons']['delete'] . ' ' .  Yii::t('cropper', 'Delete');
+$uploadUrl=$uploadOptions['url'];
+$uploadMethod=$uploadOptions['method'];
+$uploadResponse=$uploadOptions['response'];
+
 if ($label !== false) $browseLabel = $cropperOptions['icons']['browse'] . ' ' . $label;
 
 // button template
@@ -71,7 +77,7 @@ if ($cropperOptions['preview'] !== false) {
             'data-buttonid' => 'cropper-select-button-' . $uniqueId,
             'onclick' => 'js: $("#cropper-select-button-'.$uniqueId.'").click()',
         ]) .
-        '<a  class="cropper-delete" id="cropper-delete-'.$uniqueId.'">×</a>'.
+        // '<a  class="cropper-delete" id="cropper-delete-'.$uniqueId.'">×</a>'.
     '</div>';
 } else {
     $previewContent = Html::img(null, ['class' => 'hidden', 'id' => 'cropper-image-'.$uniqueId]);
@@ -237,6 +243,7 @@ $this->registerJs(<<<JS
         button: {
             crop: $('#crop-button-$uniqueId'),
             reset: $('#reset-button-$uniqueId'),
+            delete: $('#delete-button-$uniqueId'),
             close: $('#close-button-$uniqueId')
         },
         
@@ -298,7 +305,6 @@ $this->registerJs(<<<JS
     
     // input file change
     options_$uniqueId.input.crop.change(function(event) {
-        console.log(event);
         // cropper reset
         options_$uniqueId.croppable = false;
         options_$uniqueId.element.image.cropper('destroy');        
@@ -349,23 +355,50 @@ $this->registerJs(<<<JS
     });
     
     
-    function setCrop$uniqueId() {           
+    function setCrop$uniqueId() {    
         options_$uniqueId.croppedCanvas = options_$uniqueId.element.image.cropper('getCroppedCanvas', {
             width: options_$uniqueId.data.cropWidth,
             height: options_$uniqueId.data.cropHeight
-        });               
-        options_$uniqueId.element.result.html('<img src="' + options_$uniqueId.croppedCanvas.toDataURL() + '" id="cropper-image-$uniqueId">');   
-        options_$uniqueId.input.model.attr('type', 'text');        
-        options_$uniqueId.input.model.val(options_$uniqueId.croppedCanvas.toDataURL());
+        });         
+        img=options_$uniqueId.croppedCanvas.toDataURL();
+        if("$uploadUrl"!=''){
+            $.ajax({
+                type: "$uploadMethod",
+                url: "$uploadUrl",
+                data:{
+                    image:img
+                }, 
+                dataType: "json",
+                success: function (res) {
+                    options_$uniqueId.element.result.html('<img src="' + $uploadResponse + '" id="cropper-image-$uniqueId">');   
+                    options_$uniqueId.input.model.attr('type', 'text');        
+                    options_$uniqueId.input.model.val($uploadResponse);                    
+                },
+                complete:function(){
+                }
+            });
+        }else{
+            options_$uniqueId.element.result.html('<img src="' + img + '" id="cropper-image-$uniqueId">');   
+            options_$uniqueId.input.model.attr('type', 'text');        
+            options_$uniqueId.input.model.val(img);
+        }
     }
-    
 
     options_$uniqueId.button.crop.click(function() { 
         setCrop$uniqueId(); 
     });
+
     options_$uniqueId.button.close.click(function() { 
-        setCrop$uniqueId(); 
+        options_$uniqueId.element.modal.modal('hide'); 
     });
+  
+    options_$uniqueId.button.delete.click(function() {
+        options_$uniqueId.element.modal.modal('hide'); 
+        options_$uniqueId.element.result.html('<img src="'+"$noImage"+'" id="cropper-image-$uniqueId">');   
+        options_$uniqueId.input.model.attr('type', 'text');        
+        options_$uniqueId.input.model.val('');
+    });
+  
 
     $('[data-target="#cropper-modal-$uniqueId"]').click(function() {
         var src_$uniqueId = $('#cropper-modal-$uniqueId').find('.modal-body').find('img').attr('src');        
@@ -373,6 +406,7 @@ $this->registerJs(<<<JS
             options_$uniqueId.input.crop.click();
         }
     });
+
     
     
 
