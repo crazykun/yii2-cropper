@@ -64,11 +64,15 @@ $buttonContent = Html::button($browseLabel, [
 $previewContent = null;
 $previewOptions = $cropperOptions['preview'];
 if ($cropperOptions['preview'] !== false) {
-    $src = $previewOptions['url'];
     $previewWidth = $previewOptions['width'];
-    $previewHeight = $previewOptions['height'];
-
-    $previewImage = Html::img($src, ['id' => 'cropper-image-'.$uniqueId, 'style' => "width: $previewWidth; height: $previewHeight;"]);
+    $previewHeight = $previewOptions['height'];    
+    if(!isset($previewOptions['url'])||!$previewOptions['url']){
+        $src=$noImage;
+        $previewImage = Html::img($src, ['id' => 'cropper-image-'.$uniqueId, 'style' => "width: 128px; height: 128px;"]);
+    }else{
+        $src = $previewOptions['url'];
+        $previewImage = Html::img($src, ['id' => 'cropper-image-'.$uniqueId, 'style' => "width: $previewWidth; height: $previewHeight;"]);
+    }
     $previewContent = '<div class="cropper-container clearfix">' .        
         Html::tag('div', $previewImage, [
             'id' => 'cropper-result-'.$uniqueId,
@@ -82,7 +86,6 @@ if ($cropperOptions['preview'] !== false) {
 } else {
     $previewContent = Html::img(null, ['class' => 'hidden', 'id' => 'cropper-image-'.$uniqueId]);
 }
-
 
 // input template
 if (!empty($name)) {
@@ -371,7 +374,7 @@ $this->registerJs(<<<JS
                 }, 
                 dataType: "json",
                 success: function (res) {
-                    options_$uniqueId.element.result.html('<img src="' + $uploadResponse + '" id="cropper-image-$uniqueId">');   
+                    options_$uniqueId.element.result.html('<img src="' + $uploadResponse + '" id="cropper-image-$uniqueId"  style="width:$previewWidth;height:$previewHeight;">');   
                     options_$uniqueId.input.model.attr('type', 'text');        
                     options_$uniqueId.input.model.val($uploadResponse);                    
                 },
@@ -379,7 +382,7 @@ $this->registerJs(<<<JS
                 }
             });
         }else{
-            options_$uniqueId.element.result.html('<img src="' + img + '" id="cropper-image-$uniqueId">');   
+            options_$uniqueId.element.result.html('<img src="' + img + '" id="cropper-image-$uniqueId"  style="width:$previewWidth;height:$previewHeight;">');   
             options_$uniqueId.input.model.attr('type', 'text');        
             options_$uniqueId.input.model.val(img);
         }
@@ -395,7 +398,7 @@ $this->registerJs(<<<JS
   
     options_$uniqueId.button.delete.click(function() {
         options_$uniqueId.element.modal.modal('hide'); 
-        options_$uniqueId.element.result.html('<img src="'+"$noImage"+'" id="cropper-image-$uniqueId">');   
+        options_$uniqueId.element.result.html('<img src="'+"$noImage"+'" id="cropper-image-$uniqueId" style="width: 128px; height: 128px;">');   
         options_$uniqueId.input.model.attr('type', 'text');        
         options_$uniqueId.input.model.val('');
     });

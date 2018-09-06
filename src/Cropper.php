@@ -178,16 +178,6 @@ class Cropper extends InputWidget
             if(!isset($options['preview']['url'])||empty($options['preview']['url'])){
                 if($this->imageUrl){
                     $options['preview']['url'] = $this->imageUrl;
-                }else{     
-                    if($this->noImage == ''){
-                        $view = $this->getView();
-                        $assets = CropperAsset::register($view);
-                        $this->noImage = $assets->baseUrl . '/upload.png';                        
-                    }
-
-                    $options['preview']['url'] = $this->noImage;
-                    $previewSizes['width'] = '128px';
-                    $previewSizes['height'] = '128px';
                 }
             }
             $options['preview']['width'] = $previewSizes['width'];
